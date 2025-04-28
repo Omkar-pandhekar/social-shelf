@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { motion } from "framer-motion";
 import { BentoGrid, BentoGridItem } from "../../components/ui/bento-grid";
 import {
   IconArrowWaveRightUp,
@@ -24,49 +25,69 @@ import {
 
 export default function EventsPage() {
   return (
-    <BentoGrid className="max-w-4xl mx-auto mt-8">
-      {items.map((item, i) => (
-        <div key={i} className={i === 3 || i === 6 ? "md:col-span-2" : ""}>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <div className="w-full h-full cursor-pointer">
-                <BentoGridItem
-                  title={item.title}
-                  description={item.description}
-                  header={item.header}
-                  icon={item.icon}
-                  className="h-full"
-                />
-              </div>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{item.title}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {item.description}
-                  <div className="mt-4">
-                    {item.longDescription ||
-                      "More details coming soon about this event!"}
-                  </div>
+    <div className="max-w-7xl mx-auto mt-12">
+      {/* Header */}
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 mb-4">
+          Our Events
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          Join us for these exciting events and activities at Social Shelf
+        </p>
+      </motion.div>
+
+      <BentoGrid className="max-w-7xl mx-auto mt-8">
+        {items.map((item, i) => (
+          <div key={i} className={i === 3 || i === 6 ? "md:col-span-2" : ""}>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <div className="w-full h-full cursor-pointer">
+                  <BentoGridItem
+                    title={item.title}
+                    description={item.description}
+                    header={item.header}
+                    icon={item.icon}
+                    className="h-full"
+                  />
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{item.title}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {item.description}
+                  </AlertDialogDescription>
+                  {item.longDescription && (
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      {item.longDescription}
+                    </p>
+                  )}
                   {item.date && (
-                    <div className="mt-4 font-semibold">Date: {item.date}</div>
+                    <p className="mt-4 font-semibold text-sm text-muted-foreground">
+                      Date: {item.date}
+                    </p>
                   )}
                   {item.location && (
-                    <div className="font-semibold">
+                    <p className="font-semibold text-sm text-muted-foreground">
                       Location: {item.location}
-                    </div>
+                    </p>
                   )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Close</AlertDialogCancel>
-                <AlertDialogAction>Register</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      ))}
-    </BentoGrid>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Close</AlertDialogCancel>
+                  <AlertDialogAction>Register</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        ))}
+      </BentoGrid>
+    </div>
   );
 }
 

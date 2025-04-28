@@ -22,8 +22,8 @@ export function TracingBeam({
   useEffect(() => {
     const updateHeight = () => {
       if (contentRef.current) {
-        // Adjusted to extend beam height by ~15px
-        setSvgHeight(contentRef.current.scrollHeight - 65);
+        // Get the full content height and add extra padding to ensure it extends beyond the visible content
+        setSvgHeight(contentRef.current.scrollHeight + 100);
       }
     };
 
@@ -62,20 +62,17 @@ export function TracingBeam({
   }, []);
 
   const y1 = useSpring(
-    useTransform(scrollYProgress, [0, 0.8], [50, svgHeight * 0.85]),
+    useTransform(scrollYProgress, [0, 0.8], [50, svgHeight * 0.95]),
     {
       stiffness: 500,
       damping: 90,
     }
   );
 
-  const y2 = useSpring(
-    useTransform(scrollYProgress, [0, 1], [50, svgHeight * 0.9]),
-    {
-      stiffness: 500,
-      damping: 90,
-    }
-  );
+  const y2 = useSpring(useTransform(scrollYProgress, [0, 1], [50, svgHeight]), {
+    stiffness: 500,
+    damping: 90,
+  });
 
   return (
     <motion.div
@@ -117,9 +114,7 @@ export function TracingBeam({
           preserveAspectRatio="none"
         >
           <motion.path
-            d={`M 1 0V -36 l 18 24 V ${svgHeight - 105} l -18 24V ${
-              svgHeight - 85
-            }`}
+            d={`M 1 0V -36 l 18 24 V ${svgHeight - 50} l -18 24V ${svgHeight}`}
             fill="none"
             stroke="#9091A0"
             strokeOpacity="0.16"
@@ -128,9 +123,7 @@ export function TracingBeam({
             }}
           ></motion.path>
           <motion.path
-            d={`M 1 0V -36 l 18 24 V ${svgHeight - 105} l -18 24V ${
-              svgHeight - 85
-            }`}
+            d={`M 1 0V -36 l 18 24 V ${svgHeight - 50} l -18 24V ${svgHeight}`}
             fill="none"
             stroke="url(#gradient)"
             strokeWidth="1.25"
