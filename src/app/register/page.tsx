@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { signIn } from "next-auth/react";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -285,6 +286,7 @@ const RegisterPage = () => {
               <Button
                 type="button"
                 className="w-full inline-flex justify-center py-2.5 px-4 "
+                onClick={() => signIn("google")}
               >
                 <svg
                   className="h-5 w-5 mr-2 text-gray-100 dark:text-black"
@@ -299,6 +301,7 @@ const RegisterPage = () => {
               <Button
                 type="button"
                 className="w-full inline-flex justify-center py-2.5 px-4"
+                onClick={() => signIn("github")}
               >
                 <svg
                   className="h-5 w-5 mr-2 text-gray-100 dark:text-black"
