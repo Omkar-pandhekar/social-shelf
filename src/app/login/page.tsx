@@ -5,16 +5,36 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {signIn} from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login attempt with:", { email, password });
     // Add authentication logic here
+    try {
+      const response = await signIn("credentials",{
+        email,
+        password,
+        redirect:false
+      });
+
+      if(response?.error) {
+        console.log(response.error);
+      }else {
+        router.push("/");
+      }
+      
+    } catch (error) {
+      
+    }
   };
 
   return (

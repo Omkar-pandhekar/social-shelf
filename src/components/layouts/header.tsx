@@ -14,9 +14,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut, useSession } from "next-auth/react";
+import { Button } from "../ui/button";
+
+
+
+
+
 
 export default function Header() {
   const pathName = usePathname();
+  const {data : session} = useSession();
+  const HandleSignOut = async () => {
+    try {
+      await signOut();
+      } catch (error) {
+        console.log("Failed to SignOut !",error);
+    }
+  }
+
 
   return (
     <SectionContainer>
@@ -69,6 +85,11 @@ export default function Header() {
             </div>
           </div>
           <div className="flex-1 flex items-center justify-end space-x-6">
+
+          {
+            session ? (
+              <Button onClick={HandleSignOut}> Sign Out</Button>
+            ) : (
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={classNames("horizontal-underline text-base mx-10", {
@@ -88,6 +109,8 @@ export default function Header() {
                 </Link>
               </DropdownMenuContent>
             </DropdownMenu>
+            )
+          }
             <ModeToggle />
             <MobileNav />
           </div>

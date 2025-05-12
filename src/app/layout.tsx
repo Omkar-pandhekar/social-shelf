@@ -3,6 +3,9 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import "./globals.css";
 import Header from "@/components/layouts/header";
 import Footer from "@/components/layouts/footer";
+import AuthProvider from "@/context/AuthProvider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/utils/authOptions";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,8 +17,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  // const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
+      <AuthProvider >
       <body>
         <ThemeProvider
           attribute="class"
@@ -28,6 +35,7 @@ export default function RootLayout({
           <Footer />
         </ThemeProvider>
       </body>
+      </AuthProvider>
     </html>
   );
 }

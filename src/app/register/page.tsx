@@ -5,6 +5,17 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import axios, { Axios, AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -13,11 +24,32 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [role,setRole] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt with:", { name, email, password });
+    console.log("Registration attempt with:", { name, email, password ,role});
     // Add registration logic here
+    const userData = {
+      fullname:name,
+      email,
+      password,
+      role
+    }
+    try {
+      
+      const response = await axios.post("/api/user/signup",userData);
+      if(!response.data.ok) {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("Axios Error at the Frontend !");
+    }
+    
+
   };
 
   return (
@@ -182,6 +214,26 @@ const RegisterPage = () => {
                 </button>
               </div>
             </div>
+            <label
+              htmlFor="user-Type"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              User Role :
+            </label>
+            <Select onValueChange={(value) => setRole(value)} >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a User" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>User</SelectLabel>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="volunteer">Volunteer</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center">
