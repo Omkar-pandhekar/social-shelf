@@ -1,32 +1,70 @@
 import React from "react";
+import CountUp from "../TextAnimations/CountUp/CountUp";
 
 const stats = () => {
   return (
-    <section className="p-6 text-primary dark:text-white">
-      <div className="container mx-auto grid justify-center grid-cols-2 text-center lg:grid-cols-3">
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">50+</p>
-          <p className="text-sm sm:text-base">Clients</p>
-        </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">89K</p>
-          <p className="text-sm sm:text-base">Followers on social media</p>
-        </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">3</p>
-          <p className="text-sm sm:text-base">Published books</p>
-        </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">8</p>
-          <p className="text-sm sm:text-base">TED talks</p>
-        </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">22</p>
-          <p className="text-sm sm:text-base">Years of experience</p>
-        </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">10+</p>
-          <p className="text-sm sm:text-base">Workshops</p>
+    <section className="p-6 mt-10 text-primary dark:text-white">
+      <div className="container mx-auto">
+        <div className="flex flex-wrap justify-center items-center gap-4 lg:gap-74">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center">
+              <CountUp
+                from={0}
+                to={1000}
+                separator=","
+                direction="up"
+                duration={2}
+                className="count-up-text text-6xl font-bold"
+              />
+              <h1 className="text-5xl font-extrabold">+</h1>
+            </div>
+            <p className="text-sm sm:text-base">Books shared</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="flex items-center">
+              <CountUp
+                from={0}
+                to={300}
+                separator=","
+                direction="up"
+                duration={2}
+                className="count-up-text text-6xl font-bold"
+              />
+              <h1 className="text-5xl font-extrabold">+</h1>
+            </div>
+            <p className="text-sm sm:text-base">Active readers</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="flex items-center">
+              <CountUp
+                from={0}
+                to={3}
+                separator=","
+                direction="up"
+                duration={2}
+                className="count-up-text text-6xl font-bold"
+              />
+              <h1 className="text-5xl font-extrabold">+</h1>
+            </div>
+            <p className="text-sm sm:text-base">Published books</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="flex items-center">
+              <CountUp
+                from={0}
+                to={8}
+                separator=","
+                direction="up"
+                duration={2}
+                className="count-up-text text-6xl font-bold"
+              />
+              <h1 className="text-5xl font-extrabold">+</h1>
+            </div>
+            <p className="text-sm sm:text-base">TED talks</p>
+          </div>
         </div>
       </div>
     </section>

@@ -17,31 +17,25 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 
-
-
-
-
-
 export default function Header() {
   const pathName = usePathname();
-  const {data : session} = useSession();
+  const { data: session } = useSession();
   const HandleSignOut = async () => {
     try {
       await signOut();
-      } catch (error) {
-        console.log("Failed to SignOut !",error);
+    } catch (error) {
+      console.log("Failed to SignOut !", error);
     }
-  }
-
+  };
 
   return (
     // <SectionContainer>
-    <header className="sticky top-0 w-full z-40 bg-transparent md:pb-8 md:pt-8 backdrop-blur-md bg-white/30 dark:bg-gray-900/30 shadow-sm">
+    <header className="sticky top-0 w-full z-40 bg-transparent md:pb-8 md:pt-8 backdrop-blur-md bg-white/30 dark:bg-gray-950/30 shadow-sm">
       <div className="w-full flex items-center justify-between px-8 sm:px-6 lg:px-12">
         <div className="flex-1">
           <Link
             href="/"
-            className=" text-3xl font-extrabold flex items-center"
+            className="text-3xl font-extrabold flex items-center sm:text-xl md:text-2xl"
             aria-label="Social Shelf"
           >
             <svg
@@ -85,32 +79,29 @@ export default function Header() {
           </div>
         </div>
         <div className="flex-1 flex items-center justify-end space-x-6">
-          
-        {session ? (
-          <Button onClick={HandleSignOut}> Sign Out</Button>
-        ) : (
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={classNames("horizontal-underline text-base mx-10", {
-                "horizontal-underline-active":
-                  pathName === "/login" || pathName === "/register",
-              })}
-            >
-              Login
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <Link href="/login">
-                <DropdownMenuItem>Login</DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              <Link href="/register">
-                <DropdownMenuItem>Sign Up</DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-        }
+          {session ? (
+            <Button onClick={HandleSignOut}> Sign Out</Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={classNames("horizontal-underline text-base mx-10", {
+                  "horizontal-underline-active":
+                    pathName === "/login" || pathName === "/register",
+                })}
+              >
+                Login
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <Link href="/login">
+                  <DropdownMenuItem>Login</DropdownMenuItem>
+                </Link>
+                <DropdownMenuSeparator />
+                <Link href="/register">
+                  <DropdownMenuItem>Sign Up</DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           <ModeToggle />
           <MobileNav />
