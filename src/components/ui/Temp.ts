@@ -4,7 +4,7 @@ export const books = [
     title: "The Midnight Library",
     author: "Matt Haig",
     category: "Fiction",
-    imageUrl: "https://source.unsplash.com/400x600/?book,library",
+    imageUrl: "/assets/books/52578297.jpeg",
     available: true,
   },
   {
