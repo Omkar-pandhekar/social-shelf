@@ -23,6 +23,8 @@ import {
 } from "../../components/ui/table";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -39,6 +41,9 @@ const Admin = () => {
   const totalBooks = books.length;
   const availableBooks = books.filter((book) => book.available).length;
   const categories = [...new Set(books.map((book) => book.category))];
+  const router = useRouter();
+
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,10 +57,18 @@ const Admin = () => {
     }
   };
 
-  const handleAddBook = (e: React.FormEvent) => {
+  const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Adding new book:", { ...newBook, image: selectedImage });
-    setNewBook({ title: "", author: "", category: "", imageUrl: "" });
+    setNewBook({ title:"", author:"", category:"", imageUrl:"" });
+      try {
+        const response = await axios.post("/api/admin/add-book",newBook);
+        if(response.data.success) {
+          router.push("/admin");
+        }
+      } catch (error) {
+        throw new Error("Error at Frontened")
+      }
     setSelectedImage(null);
     setImagePreview("");
   };
