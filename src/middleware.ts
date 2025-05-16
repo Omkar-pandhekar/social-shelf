@@ -25,6 +25,7 @@ export default withAuth(
         // Allow auth-related routes
         if (
           pathname.startsWith("/api/auth") ||
+          pathname.startsWith("/api/user/signup") ||
           pathname === "/login" ||
           pathname === "/register"
         ) {
@@ -32,7 +33,7 @@ export default withAuth(
         }
 
         // Public routes
-        if (pathname === "/" || pathname.startsWith("/api/videos")) {
+        if (pathname === "/") {
           return true;
         }
 
@@ -44,7 +45,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
 };

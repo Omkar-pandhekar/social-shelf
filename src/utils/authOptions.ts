@@ -8,9 +8,8 @@ import User from "@/models/user.models";
 import clientPromise from "./mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 
-
 export const authOptions: NextAuthOptions = {
-  adapter:MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -75,7 +74,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-    error: "/login",
+    error: "/auth/error",
   },
   session: {
     strategy: "jwt",
