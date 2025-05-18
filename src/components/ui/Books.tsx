@@ -2,7 +2,19 @@ import React from "react";
 import { Button } from "./button";
 import { books } from "./Temp";
 
-const Books = () => {
+interface Book {
+  bookId: string;
+  title: string;
+  author: string;
+  category: string;
+  imageUrl?: string;
+}
+
+interface BooksProps {
+  bookArray: Book[];
+}
+
+const Books = ({ bookArray }: BooksProps) => {
   return (
     <section className="py-12 sm:py-16">
       <div className="container p-6 mx-auto space-y-8">
@@ -16,9 +28,9 @@ const Books = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {books.map((book) => (
+          {bookArray.map((book) => (
             <article
-              key={book.id}
+              key={book.bookId}
               className="flex flex-col overflow-hidden transition-all duration-300 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 bg-white dark:bg-black"
             >
               <a

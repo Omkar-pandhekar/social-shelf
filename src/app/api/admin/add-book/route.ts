@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       title,
       author,
       category,
-      imageUrl
+      imageUrl,
     });
 
     const newBookAdded = await newBook.save();

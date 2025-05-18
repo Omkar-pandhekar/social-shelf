@@ -2,11 +2,10 @@
 
 import classNames from "classnames";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { navigationLinks } from "./constants";
 import MobileNav from "./mobile-nav";
 import { ModeToggle } from "./modeToggle";
-import SectionContainer from "./SectionContainer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,17 +15,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "../ui/button";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Header() {
   const pathName = usePathname();
+  const [role, setRole] = useState<string>("");
   const { data: session } = useSession();
+  const router = useRouter();
+  console.log(session);
   const HandleSignOut = async () => {
     try {
-      await signOut();
+      await signOut({ redirect: false });
+      router.push("/");
+      router.refresh();
     } catch (error) {
       console.log("Failed to SignOut !", error);
     }
   };
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        if (session?.user?.email) {
+          const res = await axios.post<{ role: string }>("/api/user/get-role", {
+            email: session.user.email,
+          });
+          setRole(res.data.role);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchRole();
+  }, [session]);
 
   return (
     // <SectionContainer>
@@ -80,7 +102,12 @@ export default function Header() {
         </div>
         <div className="flex-1 flex items-center justify-end space-x-6">
           {session ? (
-            <Button onClick={HandleSignOut}> Sign Out</Button>
+            <>
+              <Button onClick={HandleSignOut}> Sign Out</Button>
+              <Link href={`/${role}`}>
+                <Button>Profile</Button>
+              </Link>
+            </>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -108,6 +135,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-    // </SectionContainer>
   );
 }

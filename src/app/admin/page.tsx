@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { books } from "../../components/ui/Temp";
 import {
@@ -13,21 +13,52 @@ import {
   BarChart,
   Upload,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Donations from "./donations";
+import Allbooks from "./allbooks";
+import UsersInfo from "./users";
 
-const Admin = () => {
+import mongoose from "mongoose";
+
+interface Book {
+  bookId: string;
+  title: string;
+  author: string;
+  category: string;
+  imageUrl?: string;
+}
+interface Donate {
+  bookId: string;
+  name: string;
+  email: string;
+  title: string;
+  author: string;
+  condition: string;
+  message?: string;
+}
+interface User {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  role: string;
+}
+interface Stats {
+  totalBooks: number;
+  availableBooks: number;
+  categories: string[];
+  rentedBooks: number;
+}
+
+export default function Admin() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [bookArray, setBookArray] = useState<Book[]>([]);
+  const [donationArray, setDonationArray] = useState<Donate[]>([]);
+  const [userArray, setUsersArray] = useState<User[]>([]);
+  const [booksStats, setBooksStats] = useState<Stats | null>(null);
+
   const [newBook, setNewBook] = useState({
     title: "",
     author: "",
@@ -38,12 +69,16 @@ const Admin = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
 
   // Calculate statistics
-  const totalBooks = books.length;
-  const availableBooks = books.filter((book) => book.available).length;
+
   const categories = [...new Set(books.map((book) => book.category))];
   const router = useRouter();
 
-
+  useEffect(() => {
+    HandleGetBook();
+    HandleGetDonations();
+    HandleGetUsers();
+    HandleGetBookStats();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,17 +95,58 @@ const Admin = () => {
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Adding new book:", { ...newBook, image: selectedImage });
-    setNewBook({ title:"", author:"", category:"", imageUrl:"" });
-      try {
-        const response = await axios.post("/api/admin/add-book",newBook);
-        if(response.data.success) {
-          router.push("/admin");
-        }
-      } catch (error) {
-        throw new Error("Error at Frontened")
+    setNewBook({ title: "", author: "", category: "", imageUrl: "" });
+    try {
+      const response = await axios.post("/api/admin/add-book", newBook);
+      if (response.data.success) {
+        router.push("/admin");
       }
+    } catch (error) {
+      throw new Error("Error at Frontened");
+    }
     setSelectedImage(null);
     setImagePreview("");
+  };
+
+  const HandleGetBook = async () => {
+    try {
+      const response = await axios.get("/api/admin/get-books");
+      console.log(response);
+      setBookArray(response.data.bookArray);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error at Frontend");
+    }
+  };
+  const HandleGetDonations = async () => {
+    try {
+      const response = await axios.get("/api/admin/get-donations");
+      console.log(response);
+      setDonationArray(response.data.donationsArray);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error at Frontend");
+    }
+  };
+  const HandleGetBookStats = async () => {
+    try {
+      const response = await axios.get("/api/admin/get-book-info");
+      setBooksStats(response.data.stats);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error at Frontend");
+    }
+  };
+
+  const HandleGetUsers = async () => {
+    try {
+      const response = await axios.get("/api/admin/get-users");
+      console.log(response);
+      setUsersArray(response.data.users);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error at Frontend");
+    }
   };
 
   const sidebarItems = [
@@ -137,7 +213,7 @@ const Admin = () => {
                     Total Books
                   </h3>
                   <p className="text-3xl font-bold text-primary">
-                    {totalBooks}
+                    {booksStats?.totalBooks || 0}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-secondary p-6 rounded-lg shadow">
@@ -145,7 +221,7 @@ const Admin = () => {
                     Available Books
                   </h3>
                   <p className="text-3xl font-bold text-green-600">
-                    {availableBooks}
+                    {booksStats?.availableBooks || 0}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-secondary p-6 rounded-lg shadow">
@@ -153,7 +229,7 @@ const Admin = () => {
                     Categories
                   </h3>
                   <p className="text-3xl font-bold text-blue-600">
-                    {categories.length}
+                    {booksStats?.categories?.length || 0}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-secondary p-6 rounded-lg shadow">
@@ -161,7 +237,7 @@ const Admin = () => {
                     Rented Books
                   </h3>
                   <p className="text-3xl font-bold text-orange-600">
-                    {totalBooks - availableBooks}
+                    {booksStats?.rentedBooks || 0}
                   </p>
                 </div>
               </div>
@@ -169,66 +245,7 @@ const Admin = () => {
           )}
 
           {/* Books Tab */}
-          {activeTab === "books" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                Book Management
-              </h1>
-              <div className="rounded-lg shadow">
-                <div className="p-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Author</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Stock</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {books.map((book) => (
-                        <TableRow key={book.id}>
-                          <TableCell>{book.title}</TableCell>
-                          <TableCell>{book.author}</TableCell>
-                          <TableCell>{book.category}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <span>{book.stock || 0}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                book.available
-                                  ? "bg-green-600 text-white"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {book.available ? "Available" : "Rented"}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="mr-2"
-                            >
-                              Edit
-                            </Button>
-                            <Button variant="destructive" size="sm">
-                              Delete
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === "books" && <Allbooks bookArray={bookArray} />}
 
           {/* Add Book Tab */}
           {activeTab === "add" && (
@@ -339,61 +356,11 @@ const Admin = () => {
 
           {/* Donations Tab */}
           {activeTab === "donations" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                Book Donations
-              </h1>
-              <div className="rounded-lg shadow p-6">
-                <div className="space-y-4">
-                  <div className="p-4 border rounded-lg">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      Recent Donations
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      No donations yet
-                    </p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      Donation Statistics
-                    </h3>
-                    <div className="mt-2 grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Total Donations
-                        </p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                          0
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Pending Approvals
-                        </p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                          0
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Donations donationArray={donationArray} />
           )}
 
           {/* Users Tab */}
-          {activeTab === "users" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                User Management
-              </h1>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <p className="text-gray-600 dark:text-gray-400">
-                  User management features coming soon...
-                </p>
-              </div>
-            </div>
-          )}
+          {activeTab === "users" && <UsersInfo usersArray={userArray} />}
 
           {/* Analytics Tab */}
           {activeTab === "analytics" && (
@@ -426,6 +393,4 @@ const Admin = () => {
       </div>
     </div>
   );
-};
-
-export default Admin;
+}

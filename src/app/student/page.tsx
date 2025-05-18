@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import {
   BookOpen,
@@ -22,9 +22,35 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import Donation from "../../components/ui/donation";
+import Books from "@/components/ui/Books";
+import axios from "axios";
 
-const User = () => {
+interface Book {
+  bookId: string;
+  title: string;
+  author: string;
+  category: string;
+  imageUrl?: string;
+}
+
+export default function Student() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [bookArray, setBookArray] = useState<Book[]>([]);
+
+  const HandleGetBook = async () => {
+    try {
+      const response = await axios.get("/api/user/get-books");
+      console.log(response);
+      setBookArray(response.data.bookArray);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error at Frontend");
+    }
+  };
+
+  useEffect(() => {
+    HandleGetBook();
+  }, []);
 
   // Mock data for user's books
   const rentedBooks = [
@@ -88,8 +114,8 @@ const User = () => {
       icon: <Clock className="w-5 h-5" />,
     },
     {
-      id: "read",
-      label: "Read Books",
+      id: "rent",
+      label: "Rent Books",
       icon: <History className="w-5 h-5" />,
     },
     {
@@ -254,55 +280,10 @@ const User = () => {
           )}
 
           {/* Read Books Tab */}
-          {activeTab === "read" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                Read Books
-              </h1>
-              <div className="rounded-lg shadow">
-                <div className="p-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Author</TableHead>
-                        <TableHead>Read Date</TableHead>
-                        <TableHead>Rating</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {readBooks.map((book) => (
-                        <TableRow key={book.id}>
-                          <TableCell>{book.title}</TableCell>
-                          <TableCell>{book.author}</TableCell>
-                          <TableCell>{book.readDate}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < book.rating
-                                      ? "text-yellow-400 fill-current"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm">
-                              Write Review
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </div>
+          {activeTab === "rent" && (
+            <>
+              <Books bookArray={bookArray} />
+            </>
           )}
 
           {/* Wishlist Tab */}
@@ -411,6 +392,4 @@ const User = () => {
       </div>
     </div>
   );
-};
-
-export default User;
+}

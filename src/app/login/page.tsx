@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {signIn} from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
+import { AxiosError } from "axios";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -20,20 +20,20 @@ const LoginPage = () => {
     console.log("Login attempt with:", { email, password });
     // Add authentication logic here
     try {
-      const response = await signIn("credentials",{
+      const response = await signIn("credentials", {
         email,
         password,
-        redirect:false
+        redirect: false,
       });
-
-      if(response?.error) {
+      if (response?.error) {
         console.log(response.error);
-      }else {
+      } else {
+        console.log(response);
         router.push("/");
       }
-      
     } catch (error) {
-      
+      console.log(error);
+      throw new Error("Error at Login !");
     }
   };
 
