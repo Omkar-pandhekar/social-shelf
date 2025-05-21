@@ -17,6 +17,8 @@ import { signOut, useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { User, LogOut, Settings, UserCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export default function Header() {
   const pathName = usePathname();
@@ -102,12 +104,59 @@ export default function Header() {
         </div>
         <div className="flex-1 flex items-center justify-end space-x-6">
           {session ? (
-            <>
-              <Button onClick={HandleSignOut}> Sign Out</Button>
-              <Link href={`/${role}`}>
-                <Button>Profile</Button>
-              </Link>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full hover:bg-accent"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={session.user?.image || ""} />
+                    <AvatarFallback>
+                      <UserCircle className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>
+                      <UserCircle className="h-6 w-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/${role}`}
+                    className="flex items-center cursor-pointer"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={HandleSignOut}
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger

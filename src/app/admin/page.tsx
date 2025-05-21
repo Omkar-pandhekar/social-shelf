@@ -12,6 +12,8 @@ import {
   Settings,
   BarChart,
   Upload,
+  Contact,
+  Calendar1,
 } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -21,7 +23,10 @@ import Donations from "./donations";
 import Allbooks from "./allbooks";
 import UsersInfo from "./users";
 
+import Feedback from "./feedback";
+
 import mongoose from "mongoose";
+import Events from "./events";
 
 interface Book {
   bookId: string;
@@ -41,7 +46,7 @@ interface Donate {
 }
 interface User {
   _id: mongoose.Types.ObjectId;
-  name: string;
+  fullname: string;
   email: string;
   role: string;
 }
@@ -52,11 +57,23 @@ interface Stats {
   rentedBooks: number;
 }
 
+interface Feedback {
+  _id?: mongoose.Types.ObjectId;
+  fullname: string;
+  email: string;
+  phoneno: string;
+  message: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("overview");
   const [bookArray, setBookArray] = useState<Book[]>([]);
   const [donationArray, setDonationArray] = useState<Donate[]>([]);
   const [userArray, setUsersArray] = useState<User[]>([]);
+  const [feedbackArray, setFeedbackArray] = useState<Feedback[]>([]);
+
   const [booksStats, setBooksStats] = useState<Stats | null>(null);
 
   const [newBook, setNewBook] = useState({
@@ -78,6 +95,7 @@ export default function Admin() {
     HandleGetDonations();
     HandleGetUsers();
     HandleGetBookStats();
+    HandleGetFeedbacks();
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,14 +112,15 @@ export default function Admin() {
 
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Adding new book:", { ...newBook, image: selectedImage });
-    setNewBook({ title: "", author: "", category: "", imageUrl: "" });
     try {
-      const response = await axios.post("/api/admin/add-book", newBook);
+      const response = await axios.post("/api/admin/add-book", {
+        ...newBook,
+        image: selectedImage,
+      });
       if (response.data.success) {
         router.push("/admin");
       }
-    } catch (error) {
+    } catch {
       throw new Error("Error at Frontened");
     }
     setSelectedImage(null);
@@ -111,29 +130,29 @@ export default function Admin() {
   const HandleGetBook = async () => {
     try {
       const response = await axios.get("/api/admin/get-books");
-      console.log(response);
       setBookArray(response.data.bookArray);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error("Error fetching books:", err);
       throw new Error("Error at Frontend");
     }
   };
+
   const HandleGetDonations = async () => {
     try {
       const response = await axios.get("/api/admin/get-donations");
-      console.log(response);
       setDonationArray(response.data.donationsArray);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error("Error fetching donations:", err);
       throw new Error("Error at Frontend");
     }
   };
+
   const HandleGetBookStats = async () => {
     try {
       const response = await axios.get("/api/admin/get-book-info");
       setBooksStats(response.data.stats);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error("Error fetching book stats:", err);
       throw new Error("Error at Frontend");
     }
   };
@@ -141,10 +160,19 @@ export default function Admin() {
   const HandleGetUsers = async () => {
     try {
       const response = await axios.get("/api/admin/get-users");
-      console.log(response);
       setUsersArray(response.data.users);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      throw new Error("Error at Frontend");
+    }
+  };
+
+  const HandleGetFeedbacks = async () => {
+    try {
+      const response = await axios.get("/api/contact/get-contact");
+      setFeedbackArray(response.data.feedbackArray);
+    } catch (err) {
+      console.error("Error fetching feedbacks:", err);
       throw new Error("Error at Frontend");
     }
   };
@@ -158,7 +186,15 @@ export default function Admin() {
     { id: "books", label: "Books", icon: <BookOpen className="w-5 h-5" /> },
     { id: "add", label: "Add Book", icon: <PlusCircle className="w-5 h-5" /> },
     { id: "donations", label: "Donations", icon: <Gift className="w-5 h-5" /> },
+    { id: "events", label: "Events", icon: <Calendar1 className="w-5 h-5" /> },
+
     { id: "users", label: "Users", icon: <Users className="w-5 h-5" /> },
+    {
+      id: "feedbacks",
+      label: "Feedbacks",
+      icon: <Contact className="w-5 h-5" />,
+    },
+
     {
       id: "analytics",
       label: "Analytics",
@@ -359,8 +395,16 @@ export default function Admin() {
             <Donations donationArray={donationArray} />
           )}
 
+          {/* Events Tab */}
+
+          {activeTab === "events" && <Events />}
+
           {/* Users Tab */}
           {activeTab === "users" && <UsersInfo usersArray={userArray} />}
+
+          {activeTab === "feedbacks" && (
+            <Feedback feedbackArray={feedbackArray} />
+          )}
 
           {/* Analytics Tab */}
           {activeTab === "analytics" && (

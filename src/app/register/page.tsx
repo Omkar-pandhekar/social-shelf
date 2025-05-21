@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { signIn } from "next-auth/react";
+import Swal from "sweetalert2";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -25,32 +26,41 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [role,setRole] = useState("");
+  const [role, setRole] = useState("");
   const router = useRouter();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt with:", { name, email, password ,role});
+    console.log("Registration attempt with:", { name, email, password, role });
     // Add registration logic here
     const userData = {
-      fullname:name,
+      fullname: name,
       email,
       password,
-      role
-    }
+      role,
+    };
     try {
-      
-      const response = await axios.post("/api/user/signup",userData);
-      if(!response.data.ok) {
+      const response = await axios.post("/api/user/signup", userData);
+      if (!response.data.ok) {
         router.push("/login");
+        Swal.fire({
+          position: "bottom-end",
+          icon: "success",
+          title: "Account created successfully",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          background: "hsl(var(--card))",
+          color: "hsl(var(--card-foreground))",
+          customClass: {
+            popup: "border border-border shadow-lg",
+          },
+        });
       }
     } catch (error) {
       console.log(error);
       throw new Error("Axios Error at the Frontend !");
     }
-    
-
   };
 
   return (
@@ -221,7 +231,7 @@ const RegisterPage = () => {
             >
               User Role :
             </label>
-            <Select onValueChange={(value) => setRole(value)} >
+            <Select onValueChange={(value) => setRole(value)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a User" />
               </SelectTrigger>
@@ -231,7 +241,6 @@ const RegisterPage = () => {
                   <SelectItem value="student">Student</SelectItem>
                   <SelectItem value="volunteer">Volunteer</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  
                 </SelectGroup>
               </SelectContent>
             </Select>

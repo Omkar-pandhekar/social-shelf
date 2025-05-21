@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -47,20 +49,57 @@ export default function ContactPage() {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Contact form submitted:", { name, email, phone, message });
-    // Add form submission logic here
-    setFormSubmitted(true);
+    try {
+      const response = await axios.post("/api/contact/add-contact", {
+        name,
+        email,
+        phone,
+        message,
+      });
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormSubmitted(false);
-      setName("");
-      setEmail("");
-      setPhone("");
-      setMessage("");
-    }, 3000);
+      if (response.data.success) {
+        setFormSubmitted(true);
+        Swal.fire({
+          position: "bottom-end",
+          icon: "success",
+          title: "Message sent successfully!",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          background: "hsl(var(--card))",
+          color: "hsl(var(--card-foreground))",
+          customClass: {
+            popup: "border border-border shadow-lg",
+          },
+        });
+
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setFormSubmitted(false);
+          setName("");
+          setEmail("");
+          setPhone("");
+          setMessage("");
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      Swal.fire({
+        position: "bottom-end",
+        icon: "error",
+        title: "Failed to send message. Please try again.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 3000,
+        background: "hsl(var(--card))",
+        color: "hsl(var(--card-foreground))",
+        customClass: {
+          popup: "border border-border shadow-lg",
+        },
+      });
+    }
   };
 
   const formAnimation = {
@@ -109,7 +148,7 @@ export default function ContactPage() {
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             Have questions about Social Shelf? Want to partner with us? Drop us
-            a message, and we'll get back to you soon.
+            a message, and we&apos;ll get back to you soon.
           </p>
         </motion.div>
 
@@ -254,8 +293,8 @@ export default function ContactPage() {
                     Message Sent!
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-                    Thank you for reaching out. We've received your message and
-                    will get back to you shortly.
+                    Thank you for reaching out. We&apos;ve received your message
+                    and will get back to you shortly.
                   </p>
                 </motion.div>
               ) : (
@@ -360,31 +399,6 @@ export default function ContactPage() {
                           rows={5}
                         />
                       </div>
-                    </motion.div>
-
-                    <motion.div
-                      variants={itemAnimation}
-                      className="flex items-center"
-                    >
-                      <Input
-                        id="privacy-policy"
-                        name="privacy-policy"
-                        type="checkbox"
-                        required
-                        className="h-4 w-4"
-                      />
-                      <label
-                        htmlFor="privacy-policy"
-                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        I agree to the{" "}
-                        <a
-                          href="#"
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          Privacy Policy
-                        </a>
-                      </label>
                     </motion.div>
 
                     <motion.div variants={itemAnimation}>

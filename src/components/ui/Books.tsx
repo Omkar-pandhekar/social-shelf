@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "./button";
-import { books } from "./Temp";
 
 interface Book {
   bookId: string;

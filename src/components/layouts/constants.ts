@@ -6,7 +6,7 @@ export const navigationLinks = [
 ];
 
 export const siteMetadata = {
-  title: "Omkar Pandhekar",
+  title: "Social Shelf",
   author: "Omkar Pandhekar",
   headerTitle: "omkarpandhekar",
   description: "Software Developer",
