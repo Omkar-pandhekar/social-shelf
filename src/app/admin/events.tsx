@@ -7,6 +7,9 @@ import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Upload } from "lucide-react";
+import FileUpload from "@/utils/FileUpload";
+import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
+
 
 interface Event {
   title: string;
@@ -31,7 +34,7 @@ export default function Events() {
     category: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
+  const [imageUrl,setImageUrl] = useState<string>("");
   const categories = [
     "Book Launch",
     "Author Meet",
@@ -54,9 +57,22 @@ export default function Events() {
     }
   };
 
+  const HandleBannerImage = (response: IKUploadResponse) => {
+      try {
+        console.log(response);
+        setImagePreview(response.url);
+        setImageUrl(response.url);
+        setNewEvent({...newEvent,imageUrl : response.url});
+      } catch (error) {
+        throw new Error("Something when Wrong Uploading the Cover Image !");
+      }
+    };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      
+      console.log(newEvent);
       const response = await axios.post("/api/admin/add-event", newEvent);
       if (response.data.success) {
         Swal.fire({
@@ -79,7 +95,7 @@ export default function Events() {
           date: "",
           time: "",
           location: "",
-          imageUrl: "",
+          imageUrl:"",
           capacity: 0,
           category: "",
         });
@@ -243,7 +259,7 @@ export default function Events() {
                 className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  {imagePreview ? (
+                  {/* {imagePreview ? (
                     <img
                       src={imagePreview}
                       alt="Preview"
@@ -260,17 +276,26 @@ export default function Events() {
                         PNG, JPG or WEBP (MAX. 2MB)
                       </p>
                     </>
-                  )}
+                  )} */}
                 </div>
-                <input
-                  id="image-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  required
+                <FileUpload
+                  folderPath={"SocialShelf/Event/BannerImage"}
+                  onSuccess={HandleBannerImage}
+                  FileName={"Banner_Image"}
                 />
+
               </label>
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="max-h-36 object-contain"
+                  />
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Please Upload the File
+                  </p>
+                )}
             </div>
           </div>
 
