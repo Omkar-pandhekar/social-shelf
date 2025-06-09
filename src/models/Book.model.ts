@@ -18,6 +18,9 @@ const bookSchema = new Schema<IBook>(
         required:[true,"Book id is not Assigned !"],
         unique:true
     },
+    // stock:{
+    //   type:Number,
+    // },
     title: {
       type: String,
       required: [true, "Please Provide a username"],
