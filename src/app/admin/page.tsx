@@ -27,6 +27,8 @@ import Feedback from "./feedback";
 
 import mongoose from "mongoose";
 import Events from "./events";
+import FileUpload from "@/utils/FileUpload";
+import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
 
 interface Book {
   bookId: string;
@@ -83,6 +85,7 @@ export default function Admin() {
     imageUrl: "",
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string>("");
 
   // Calculate statistics
@@ -115,7 +118,7 @@ export default function Admin() {
     try {
       const response = await axios.post("/api/admin/add-book", {
         ...newBook,
-        image: selectedImage,
+        image: coverImageUrl,
       });
       if (response.data.success) {
         router.push("/admin");
@@ -174,6 +177,16 @@ export default function Admin() {
     } catch (err) {
       console.error("Error fetching feedbacks:", err);
       throw new Error("Error at Frontend");
+    }
+  };
+
+  const HandleCoverImage = (response: IKUploadResponse) => {
+    try {
+      console.log(response);
+      setImagePreview(response.url);
+      setCoverImageUrl(response.url);
+    } catch (error) {
+      throw new Error("Something when Wrong Uploading the Cover Image !");
     }
   };
 
@@ -349,7 +362,7 @@ export default function Admin() {
                         htmlFor="image-upload"
                         className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
                       >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        {/* <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           {imagePreview ? (
                             <img
                               src={imagePreview}
@@ -370,15 +383,29 @@ export default function Admin() {
                               </p>
                             </>
                           )}
-                        </div>
-                        <input
-                          id="image-upload"
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          required
+                        </div> */}
+
+                        {/*  temporary Code  */}
+
+                        
+                        <FileUpload 
+                        folderPath={"SocialShelf/Book/coverImage"}
+                        onSuccess={HandleCoverImage}
+                        FileName={"Cover_Image"}
                         />
+                      
+                      {imagePreview ? (
+                        <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="max-h-36 object-contain"
+                            />
+                      ) : (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Please Upload the File   
+                         </p>
+                      )}
+
                       </label>
                     </div>
                   </div>
