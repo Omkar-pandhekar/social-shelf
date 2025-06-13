@@ -5,11 +5,11 @@ import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload
 export default function FileUpload({
   onSuccess,
   folderPath = "SocialShelf/uploads",
-  FileName = `FIle_Name_${Date.now()}`
+  FileName = `FIle_Name_${Date.now()}`,
 }: {
   onSuccess: (response: IKUploadResponse) => void;
-  folderPath?:string;
-  FileName?:string;
+  folderPath?: string;
+  FileName?: string;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,16 +23,12 @@ export default function FileUpload({
     setUploading(false);
     setError(null);
     onSuccess(response);
-    
   };
 
   const handleStartUpload = () => {
     setUploading(true);
     setError(null);
   };
-
-
-  
 
   return (
     <div className="space-y-2">
@@ -57,13 +53,9 @@ export default function FileUpload({
         }}
       />
 
-        {uploading && (
-            <p className="text-sm text-gray-500" > Uploading...</p>
+      {uploading && <p className="text-sm text-gray-500"> Uploading...</p>}
 
-        )}
-
-        {error && <p className="text-sm text-red-500"> {error} </p>}
-
+      {error && <p className="text-sm text-red-500"> {error} </p>}
     </div>
   );
 }

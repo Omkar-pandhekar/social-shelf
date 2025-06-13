@@ -1,13 +1,7 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useAnimation,
-} from "framer-motion";
-import { TracingBeam } from "@/components/ui/tracing-beam";
+import { motion } from "framer-motion";
 
 const categories = [
   "All",
@@ -21,6 +15,7 @@ const categories = [
 const galleryItems = [
   {
     id: 1,
+    bookId: "book-001",
     title: "Annual Literary Festival",
     date: "March 2023",
     description:
@@ -28,13 +23,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1540224485413-4c7939106f3a?q=80&w=2798&auto=format&fit=crop",
     category: "Book Launches",
-    featured: true,
-    orientation: "landscape",
     attendees: 520,
     highlights: ["Famous author panels", "Book signings", "Writing workshops"],
+    stock: 5,
   },
   {
     id: 2,
+    bookId: "book-002",
     title: "Children's Story Hour",
     date: "August 2023",
     description:
@@ -42,13 +37,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=3546&auto=format&fit=crop",
     category: "Reading Clubs",
-    featured: false,
-    orientation: "portrait",
     attendees: 85,
     highlights: ["Puppet shows", "Character costumes", "Interactive stories"],
+    stock: 5,
   },
   {
     id: 3,
+    bookId: "book-003",
     title: "Author Meet & Greet: Maya Johnson",
     date: "October 2023",
     description:
@@ -56,13 +51,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=3271&auto=format&fit=crop",
     category: "Author Visits",
-    featured: true,
-    orientation: "landscape",
     attendees: 215,
     highlights: ["Book signing", "Q&A session", "Reading from latest work"],
+    stock: 5,
   },
   {
     id: 4,
+    bookId: "book-004",
     title: "Poetry Workshop",
     date: "January 2023",
     description:
@@ -70,17 +65,17 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1470754260170-299cf9c5ffb5?q=80&w=3087&auto=format&fit=crop",
     category: "Workshops",
-    featured: false,
-    orientation: "square",
     attendees: 42,
     highlights: [
       "Writing exercises",
       "Peer reviews",
       "Published poets as mentors",
     ],
+    stock: 5,
   },
   {
     id: 5,
+    bookId: "book-005",
     title: "Summer Reading Challenge",
     date: "June-July 2023",
     description:
@@ -88,13 +83,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1568667256549-094345857637?q=80&w=3270&auto=format&fit=crop",
     category: "Competitions",
-    featured: false,
-    orientation: "portrait",
     attendees: 230,
     highlights: ["Weekly check-ins", "Theme-based reading", "Award ceremony"],
+    stock: 5,
   },
   {
     id: 6,
+    bookId: "book-006",
     title: "Book to Movie Night",
     date: "September 2023",
     description:
@@ -102,17 +97,17 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2825&auto=format&fit=crop",
     category: "Reading Clubs",
-    featured: true,
-    orientation: "landscape",
     attendees: 78,
     highlights: [
       "Film screenings",
       "Book vs. movie debates",
       "Themed refreshments",
     ],
+    stock: 5,
   },
   {
     id: 7,
+    bookId: "book-007",
     title: "Local Authors Showcase",
     date: "November 2023",
     description:
@@ -120,13 +115,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1588666309990-d68f08e3d4a6?q=80&w=2960&auto=format&fit=crop",
     category: "Author Visits",
-    featured: false,
-    orientation: "square",
     attendees: 95,
     highlights: ["Author readings", "Book sales", "Networking"],
+    stock: 5,
   },
   {
     id: 8,
+    bookId: "book-008",
     title: "Creative Writing Workshop",
     date: "February 2023",
     description:
@@ -134,17 +129,17 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?q=80&w=3174&auto=format&fit=crop",
     category: "Workshops",
-    featured: false,
-    orientation: "portrait",
     attendees: 55,
     highlights: [
       "Character development",
       "Plot structures",
       "Dialogue techniques",
     ],
+    stock: 5,
   },
   {
     id: 9,
+    bookId: "book-009",
     title: "Book Art Exhibition",
     date: "April 2023",
     description:
@@ -152,13 +147,13 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1533669955142-6a73332af4db?q=80&w=2874&auto=format&fit=crop",
     category: "Book Launches",
-    featured: true,
-    orientation: "landscape",
     attendees: 163,
     highlights: ["Book sculptures", "Paper art", "Interactive installations"],
+    stock: 5,
   },
   {
     id: 10,
+    bookId: "book-010",
     title: "Literacy Fundraiser Gala",
     date: "December 2023",
     description:
@@ -166,432 +161,228 @@ const galleryItems = [
     image:
       "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=3269&auto=format&fit=crop",
     category: "Book Launches",
-    featured: true,
-    orientation: "portrait",
     attendees: 180,
     highlights: ["Silent auction", "Author speeches", "Award presentations"],
+    stock: 5,
   },
 ];
 
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
+  const [isRenting, setIsRenting] = useState(false);
+  const [items, setItems] = useState(galleryItems);
 
-  const headerRef = useRef(null);
-  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.3 });
-  const headerControls = useAnimation();
+  const handleRent = async (bookId: string) => {
+    try {
+      setIsRenting(true);
+      const response = await fetch("/api/books/rent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bookId }),
+      });
 
-  useEffect(() => {
-    if (isHeaderInView) {
-      headerControls.start("visible");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to rent book");
+      }
+
+      toast.success("Book rented successfully!");
+      // Update the stock in the UI
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.bookId === bookId
+            ? { ...item, stock: data.remainingStock }
+            : item
+        )
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to rent book"
+      );
+    } finally {
+      setIsRenting(false);
     }
-  }, [isHeaderInView, headerControls]);
+  };
 
   const filteredItems =
     selectedCategory === "All"
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === selectedCategory);
+      ? items
+      : items.filter((item) => item.category === selectedCategory);
 
   return (
-    <div className="w-full min-h-screen overflow-hidden">
-      <TracingBeam className="px-4 py-12 md:px-8 lg:px-16 lg:py-16">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            ref={headerRef}
-            className="text-center mb-16"
-            variants={staggerContainer}
-            initial="hidden"
-            animate={headerControls}
+    <div className="container mx-auto px-4 py-8">
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 pb-4">
+          Memory Gallery
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          Explore our past events and community activities
+        </p>
+      </motion.div>
+
+      {/* Category Filters */}
+      <div className="flex flex-wrap justify-center gap-3 mb-8">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedCategory === category
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
           >
-            <motion.div variants={fadeInUp}>
-              <h1 className="text-5xl pb-7 md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 mb-4">
-                Memory Gallery
-              </h1>
-            </motion.div>
-            <motion.p
-              variants={fadeInUp}
-              className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto"
-            >
-              Explore our past events, community activities, and literary
-              celebrations
-            </motion.p>
+            {category}
+          </button>
+        ))}
+      </div>
 
-            {/* Stats Section */}
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-wrap justify-center items-center gap-8 mt-8"
-            >
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center"
-              >
-                <span className="text-4xl font-bold text-blue-600">10+</span>
-                <span className="text-gray-600 dark:text-gray-400">Events</span>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center"
-              >
-                <span className="text-4xl font-bold text-purple-600">
-                  1.5K+
-                </span>
-                <span className="text-gray-600 dark:text-gray-400">
-                  Attendees
-                </span>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center"
-              >
-                <span className="text-4xl font-bold text-pink-600">6</span>
-                <span className="text-gray-600 dark:text-gray-400">
-                  Categories
-                </span>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-
-          {/* Category Filters */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-3 mb-12"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
+      {/* Gallery Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredItems.map((item) => (
+          <div
+            key={item.id}
+            className="dark:bg-neutral-900 rounded-lg shadow-md overflow-hidden"
+            onClick={() => setSelectedItem(item.id)}
           >
-            {categories.map((category) => (
-              <motion.button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 transform ${
-                  selectedCategory === category
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105"
-                }`}
-                variants={fadeInUp}
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                {category}
-              </motion.button>
-            ))}
-          </motion.div>
-
-          {/* Dynamic Masonry Grid */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedCategory}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto mx-auto"
-              style={{ maxWidth: "calc(100vw - 2rem)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              {filteredItems.map((item, index) => {
-                const isHovered = hoveredId === item.id;
-
-                // Dynamic grid positioning
-                let gridClass = "";
-                if (item.featured) {
-                  // Feature items take more space
-                  gridClass =
-                    index % 2 === 0 ? "sm:col-span-2" : "xl:col-span-2";
-                  if (index % 5 === 0) {
-                    gridClass += " sm:row-span-2";
-                  }
-                } else if (item.orientation === "portrait") {
-                  // Portrait images are taller
-                  gridClass = "sm:row-span-2";
-                }
-
-                // Calculate image height based on orientation and position
-                let imageHeight = "h-64";
-                if (item.orientation === "portrait") {
-                  imageHeight = "h-80 sm:h-96";
-                } else if (item.orientation === "landscape" && item.featured) {
-                  imageHeight = "h-64 sm:h-80";
-                } else if (item.featured && index % 5 === 0) {
-                  imageHeight = "h-72 sm:h-[32rem]";
-                }
-
-                return (
-                  <motion.div
-                    key={item.id}
-                    className={`group relative overflow-hidden rounded-2xl shadow-lg transform transition-all duration-500 ${gridClass}`}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow:
-                        "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                    }}
-                    layoutId={`card-${item.id}`}
-                    onClick={() => setSelectedItem(item.id)}
-                    onHoverStart={() => setHoveredId(item.id)}
-                    onHoverEnd={() => setHoveredId(null)}
-                  >
-                    <div
-                      className={`relative w-full ${imageHeight} overflow-hidden`}
-                    >
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        priority={index < 4}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className={`object-cover transition-transform duration-700 ${
-                          isHovered ? "scale-110" : "scale-100"
-                        }`}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80" />
-
-                      <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-all duration-500 ease-in-out">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <motion.span
-                              className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded-full mb-3"
-                              whileHover={{ scale: 1.05 }}
-                            >
-                              {item.category}
-                            </motion.span>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
-                              {item.title}
-                            </h3>
-                            <div className="flex items-center text-sm text-gray-300 mb-3">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              {item.date}
-                              <span className="mx-2">•</span>
-                              <span>{item.attendees} attendees</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div
-                          className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                            isHovered
-                              ? "max-h-36 opacity-100"
-                              : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          <p className="text-sm text-gray-200 mb-3">
-                            {item.description}
-                          </p>
-                          <ul className="flex flex-wrap gap-2 mb-3">
-                            {item.highlights.map((highlight, idx) => (
-                              <li
-                                key={idx}
-                                className="text-xs bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-md"
-                              >
-                                {highlight}
-                              </li>
-                            ))}
-                          </ul>
-                          <motion.button
-                            className="mt-2 text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center"
-                            whileHover={{ x: 5 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            View details
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 ml-1"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </motion.button>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Modal for selected item */}
-          <AnimatePresence>
-            {selectedItem && (
-              <>
-                <motion.div
-                  className="fixed inset-0 bg-black/80 z-50"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setSelectedItem(null)}
-                />
-                <motion.div
-                  layoutId={`card-${selectedItem}`}
-                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-3xl bg-white dark:bg-gray-900 rounded-2xl overflow-hidden z-50 shadow-2xl"
+            <div className="relative h-48">
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full mb-2">
+                {item.category}
+              </span>
+              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <span>{item.date}</span>
+                <span className="mx-2">•</span>
+                <span>{item.attendees} attendees</span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {item.description}
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Stock: {item.stock}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRent(item.bookId);
+                  }}
+                  disabled={isRenting || item.stock <= 0}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    item.stock > 0
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
-                  {(() => {
-                    const item = galleryItems.find(
-                      (item) => item.id === selectedItem
-                    );
-                    if (!item) return null;
+                  {isRenting ? "Renting..." : "Rent Book"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-                    return (
-                      <>
-                        <div className="relative h-72 sm:h-96 w-full">
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            fill
-                            priority
-                            className="object-cover"
-                          />
-                          <button
-                            className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedItem(null);
-                            }}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-6 w-6"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <div className="p-6 sm:p-8">
-                          <span className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded-full mb-3">
-                            {item.category}
-                          </span>
-                          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                            {item.title}
-                          </h2>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 mr-1"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            {item.date}
-                            <span className="mx-2">•</span>
-                            <span>{item.attendees} attendees</span>
-                          </div>
+      {/* Modal */}
+      {selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {(() => {
+              const item = items.find((item) => item.id === selectedItem);
+              if (!item) return null;
 
-                          <p className="text-gray-600 dark:text-gray-300 mb-6">
-                            {item.description}
-                          </p>
-
-                          <div className="mb-6">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                              Event Highlights
-                            </h3>
-                            <ul className="space-y-2">
-                              {item.highlights.map((highlight, idx) => (
-                                <li
-                                  key={idx}
-                                  className="flex items-center text-gray-600 dark:text-gray-300"
-                                >
-                                  <svg
-                                    className="h-5 w-5 text-blue-500 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                  {highlight}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <motion.button
-                              className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg shadow"
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedItem(null);
-                              }}
-                            >
-                              Close
-                            </motion.button>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
-          <motion.div
-            className="mt-16 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true, amount: 0.5 }}
-          >
-            <button className="px-10 py-4 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1">
-              Explore Our Archives
-            </button>
-          </motion.div>
+              return (
+                <>
+                  <div className="relative h-64">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full"
+                      onClick={() => setSelectedItem(null)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full mb-2">
+                      {item.category}
+                    </span>
+                    <h2 className="text-2xl font-bold mb-2">{item.title}</h2>
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      <span>{item.date}</span>
+                      <span className="mx-2">•</span>
+                      <span>{item.attendees} attendees</span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      {item.description}
+                    </p>
+                    <div>
+                      <h3 className="font-semibold mb-2">Highlights:</h3>
+                      <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                        {item.highlights.map((highlight, idx) => (
+                          <li key={idx}>{highlight}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="mt-6 flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Available Stock: {item.stock}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRent(item.bookId);
+                        }}
+                        disabled={isRenting || item.stock <= 0}
+                        className={`px-6 py-2 rounded-md text-sm font-medium ${
+                          item.stock > 0
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                      >
+                        {isRenting ? "Renting..." : "Rent Book"}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         </div>
-      </TracingBeam>
+      )}
     </div>
   );
 }

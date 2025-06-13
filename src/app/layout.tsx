@@ -6,6 +6,7 @@ import Footer from "@/components/layouts/footer";
 import AuthProvider from "@/context/AuthProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/utils/authOptions";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,26 +18,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   // const session = await getServerSession(authOptions);
 
   return (
     <html lang="en">
-      <AuthProvider >
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main>
-          {children}
-          </main>
-          <Footer />
-        </ThemeProvider>
-      </body>
+      <AuthProvider>
+        <body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </ThemeProvider>
+          <Toaster richColors closeButton position="top-right" />
+        </body>
       </AuthProvider>
     </html>
   );

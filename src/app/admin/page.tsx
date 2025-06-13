@@ -27,7 +27,7 @@ import Feedback from "./feedback";
 
 import mongoose from "mongoose";
 import Events from "./events";
-import FileUpload from "@/utils/FileUpload";
+import FileUpload from "@/components/layouts/FileUpload";
 import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
 
 interface Book {
@@ -118,7 +118,7 @@ export default function Admin() {
     try {
       const response = await axios.post("/api/admin/add-book", {
         ...newBook,
-        image: coverImageUrl,
+        imageUrl: coverImageUrl,
       });
       if (response.data.success) {
         router.push("/admin");
@@ -387,25 +387,23 @@ export default function Admin() {
 
                         {/*  temporary Code  */}
 
-                        
-                        <FileUpload 
-                        folderPath={"SocialShelf/Book/coverImage"}
-                        onSuccess={HandleCoverImage}
-                        FileName={"Cover_Image"}
+                        <FileUpload
+                          folderPath={"SocialShelf/Book/coverImage"}
+                          onSuccess={HandleCoverImage}
+                          FileName={"Cover_Image"}
                         />
-                      
-                      {imagePreview ? (
-                        <img
-                              src={imagePreview}
-                              alt="Preview"
-                              className="max-h-36 object-contain"
-                            />
-                      ) : (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Please Upload the File   
-                         </p>
-                      )}
 
+                        {imagePreview ? (
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="max-h-36 object-contain"
+                          />
+                        ) : (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Please Upload the File
+                          </p>
+                        )}
                       </label>
                     </div>
                   </div>
