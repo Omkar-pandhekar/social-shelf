@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Input } from "./input";
 import { Button } from "./button";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const Donation = () => {
   const [form, setForm] = useState({
@@ -14,6 +16,7 @@ const Donation = () => {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -23,18 +26,42 @@ const Donation = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you can add your API call or logic
-    setForm({
-      name: "",
-      email: "",
-      title: "",
-      author: "",
-      condition: "",
-      message: "",
-    });
+    setIsLoading(true);
+    try {
+      const response = await axios.post("/api/d/donate", form);
+
+      if (response.data.success) {
+        setSubmitted(true);
+        setForm({
+          name: "",
+          email: "",
+          title: "",
+          author: "",
+          condition: "",
+          message: "",
+        });
+        Swal.fire({
+          position: "bottom-end",
+          icon: "success",
+          title: "Book Donated Successfully",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          background: "hsl(var(--card))",
+          color: "hsl(var(--card-foreground))",
+          customClass: {
+            popup: "border border-border shadow-lg",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error donating book:", error);
+      alert(error instanceof Error ? error.message : "Failed to donate book");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -154,8 +181,8 @@ const Donation = () => {
               />
             </div>
           </div>
-          <Button type="submit" className="w-full py-2.5">
-            Donate Book
+          <Button type="submit" className="w-full py-2.5" disabled={isLoading}>
+            {isLoading ? "Donating..." : "Donate Book"}
           </Button>
         </form>
       </div>

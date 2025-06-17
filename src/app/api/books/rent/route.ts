@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find the book
-    const book = await Book.findById(bookId);
+    const book = await Book.findOne({ bookId });
     if (!book) {
       console.log("Book not found:", bookId);
       return NextResponse.json({ error: "Book not found" }, { status: 404 });

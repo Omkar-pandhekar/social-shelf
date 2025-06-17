@@ -26,6 +26,7 @@ interface Book {
   bookId: string;
   title: string;
   author: string;
+  stock: number;
   category: string;
   imageUrl?: string;
   condition?: string;
@@ -46,8 +47,7 @@ export default function Allbooks({ bookArray }: BooksProps) {
     setSelectedBook(book);
     setEditedBook({
       category: book.category,
-      condition: book.condition || "",
-      description: book.description || "",
+      stock: book.stock,
       imageUrl: book.imageUrl || "",
     });
     setIsOpen(true);
@@ -86,6 +86,61 @@ export default function Allbooks({ bookArray }: BooksProps) {
         position: "bottom-end",
         icon: "error",
         title: "Failed to update book. Please try again.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 3000,
+        background: "hsl(var(--card))",
+        color: "hsl(var(--card-foreground))",
+        customClass: {
+          popup: "border border-border shadow-lg",
+        },
+      });
+    }
+  };
+
+  const handleDelete = async (bookId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        background: "hsl(var(--card))",
+        color: "hsl(var(--card-foreground))",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `/api/admin/delete-book?bookId=${bookId}`
+        );
+
+        if (response.data.success) {
+          Swal.fire({
+            position: "bottom-end",
+            icon: "success",
+            title: "Book deleted successfully!",
+            toast: true,
+            showConfirmButton: false,
+            timer: 2000,
+            background: "hsl(var(--card))",
+            color: "hsl(var(--card-foreground))",
+            customClass: {
+              popup: "border border-border shadow-lg",
+            },
+          });
+          // Refresh the page to show updated data
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      Swal.fire({
+        position: "bottom-end",
+        icon: "error",
+        title: "Failed to delete book. Please try again.",
         toast: true,
         showConfirmButton: false,
         timer: 3000,
@@ -141,7 +196,11 @@ export default function Allbooks({ bookArray }: BooksProps) {
                     >
                       Edit
                     </Button>
-                    <Button variant="destructive" size="sm">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(book.bookId)}
+                    >
                       Delete
                     </Button>
                   </TableCell>
@@ -178,22 +237,15 @@ export default function Allbooks({ bookArray }: BooksProps) {
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="condition">Condition</Label>
+              <Label htmlFor="condition">Stock</Label>
               <Input
-                id="condition"
-                value={editedBook.condition}
+                id="stock"
+                value={editedBook.stock}
                 onChange={(e) =>
-                  setEditedBook({ ...editedBook, condition: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={editedBook.description}
-                onChange={(e) =>
-                  setEditedBook({ ...editedBook, description: e.target.value })
+                  setEditedBook({
+                    ...editedBook,
+                    stock: parseInt(e.target.value) || 0,
+                  })
                 }
               />
             </div>

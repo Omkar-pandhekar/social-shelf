@@ -7,6 +7,12 @@ export async function GET() {
     // Connect to database first
     await ConnectDB();
 
+    // Update all donations that don't have the accepted field
+    await Donate.updateMany(
+      { accepted: { $exists: false } },
+      { $set: { accepted: false } }
+    );
+
     const donationsArray = await Donate.find();
 
     return NextResponse.json({

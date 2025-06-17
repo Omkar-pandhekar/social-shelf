@@ -23,6 +23,8 @@ import {
 } from "../../components/ui/table";
 import Donation from "../../components/ui/donation";
 import Books from "@/components/ui/Books";
+import Rented from "./rented";
+
 import axios from "axios";
 
 interface Book {
@@ -33,9 +35,25 @@ interface Book {
   imageUrl?: string;
 }
 
+interface Rented {
+  bookId: string;
+  renterId: string;
+  renterName: string;
+  renterEmail: string;
+  bookTitle: string;
+  rentDate: Date;
+  dueDate: Date;
+  returnDate?: Date;
+  status: "active" | "returned" | "overdue";
+  fine?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export default function Student() {
   const [activeTab, setActiveTab] = useState("overview");
   const [bookArray, setBookArray] = useState<Book[]>([]);
+  const [rentedArray, setRentedArray] = useState<Rented[]>([]);
 
   const HandleGetBook = async () => {
     try {
@@ -48,8 +66,20 @@ export default function Student() {
     }
   };
 
+  const HandleGetRentedBooks = async () => {
+    try {
+      const response = await axios.get("/api/books/rented-book-details");
+      console.log(response);
+      setRentedArray(response.data.rentedBooks || []);
+    } catch (error) {
+      console.log(error);
+      setRentedArray([]);
+    }
+  };
+
   useEffect(() => {
     HandleGetBook();
+    HandleGetRentedBooks();
   }, []);
 
   // Mock data for user's books
@@ -224,60 +254,7 @@ export default function Student() {
           )}
 
           {/* Rented Books Tab */}
-          {activeTab === "rented" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                Rented Books
-              </h1>
-              <div className="rounded-lg shadow">
-                <div className="p-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Author</TableHead>
-                        <TableHead>Due Date</TableHead>
-                        <TableHead>Days Left</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {rentedBooks.map((book) => (
-                        <TableRow key={book.id}>
-                          <TableCell>{book.title}</TableCell>
-                          <TableCell>{book.author}</TableCell>
-                          <TableCell>{book.dueDate}</TableCell>
-                          <TableCell>
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                book.daysLeft <= 3
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-green-100 text-green-800"
-                              }`}
-                            >
-                              {book.daysLeft} days
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="mr-2"
-                            >
-                              Renew
-                            </Button>
-                            <Button variant="destructive" size="sm">
-                              Return
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === "rented" && <Rented rentedArray={rentedArray} />}
 
           {/* Read Books Tab */}
           {activeTab === "rent" && (

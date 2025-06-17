@@ -7,10 +7,10 @@ export async function PUT(request: Request) {
     await ConnectDB();
 
     const body = await request.json();
-    const { bookId, category, condition, description, imageUrl } = body;
+    const { bookId, category, stock, imageUrl } = body;
 
     // Validate required fields
-    if (!bookId || !category || !condition) {
+    if (!bookId || !category) {
       return NextResponse.json(
         { error: "Book ID, category and condition are required" },
         { status: 400 }
@@ -22,8 +22,7 @@ export async function PUT(request: Request) {
       bookId,
       {
         category,
-        condition,
-        description,
+        stock,
         imageUrl,
         needsReview: false, // Mark as reviewed by admin
         updatedAt: new Date(),

@@ -29,6 +29,7 @@ import mongoose from "mongoose";
 import Events from "./events";
 import FileUpload from "@/components/layouts/FileUpload";
 import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
+import Swal from "sweetalert2";
 
 interface Book {
   bookId: string;
@@ -122,6 +123,19 @@ export default function Admin() {
       });
       if (response.data.success) {
         router.push("/admin");
+        Swal.fire({
+          position: "bottom-end",
+          icon: "success",
+          title: "Book Added Successfully",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          background: "hsl(var(--card))",
+          color: "hsl(var(--card-foreground))",
+          customClass: {
+            popup: "border border-border shadow-lg",
+          },
+        });
       }
     } catch {
       throw new Error("Error at Frontened");
