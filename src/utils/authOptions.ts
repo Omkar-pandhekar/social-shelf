@@ -5,11 +5,19 @@ import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { ConnectDB } from "@/dbConfig/dbConfig";
 import User from "@/models/user.models";
-import clientPromise from "./mongodb";
+// import clientPromise from "./mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import { clientPromise, CustomMongoDBAdapter } from "@/dbConfig/custom-mongodb-adapter";
+import {ObjectId} from "mongodb"
+
+interface ExtendedUser {
+  id?:string;
+  name?:string;
+  email?:string;
+}
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -60,6 +68,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+  adapter: CustomMongoDBAdapter(),
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -74,6 +83,40 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name as string;
       }
       return session;
+    },
+  },
+  events:{
+     async createUser(userObj) {
+      const user = userObj?.user;
+      console.log("User is ",userObj)
+     const {id,name,email} = user as ExtendedUser
+      const client = await clientPromise;
+      const db = client.db("Social");
+
+      // const userId = (user as any).id;
+      // const userName = (user as any).name;
+      // const userEmail = (user as any).email;
+      if(!id || !name ) {
+        console.log('No User with name is Found !');
+        return
+      }
+
+      await db.collection("users").updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: {
+            fullname: name,
+            email: email,
+            password: "password", 
+            role: "student", 
+            updatedAt: new Date(),
+          },
+          $setOnInsert: {
+            createdAt: new Date(),
+          },
+        },
+        { upsert: true }
+      );
     },
   },
   pages: {
