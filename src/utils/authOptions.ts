@@ -1,14 +1,24 @@
-import { NextAuthOptions } from "next-auth";
+import type { DefaultSession, NextAuthConfig } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { ConnectDB } from "@/dbConfig/dbConfig";
-import User from "@/models/user.models";
+import UserModel from "@/models/user.models";
 import clientPromise from "./mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 
-export const authOptions: NextAuthOptions = {
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      role?: string;
+    } & DefaultSession["user"];
+  }
+}
+
+export const authOptions: NextAuthConfig = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
@@ -24,7 +34,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           await ConnectDB();
-          const user = await User.findOne({ email: credentials.email });
+          const user = await UserModel.findOne({ email: credentials.email });
 
           if (!user) {
             throw new Error("No user found with this email");
@@ -65,6 +75,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.name = user.name;
+        token.role = user.role;
       }
       return token;
     },
@@ -72,6 +83,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

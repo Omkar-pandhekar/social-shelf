@@ -25,7 +25,6 @@ const galleryItems = [
     category: "Book Launches",
     attendees: 520,
     highlights: ["Famous author panels", "Book signings", "Writing workshops"],
-    stock: 5,
   },
   {
     id: 2,
@@ -275,7 +274,7 @@ export default function Gallery() {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {item.description}
               </p>
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Stock: {item.stock}
                 </span>
@@ -293,7 +292,7 @@ export default function Gallery() {
                 >
                   {isRenting ? "Renting..." : "Rent Book"}
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}

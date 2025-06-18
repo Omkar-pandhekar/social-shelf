@@ -24,56 +24,50 @@ export const navigation = [
 export const grid = [
   {
     id: 1,
-    title: "HIPAA and SOC2 Compliant",
+    title: "Book Management System",
     description:
-      "Our applications are HIPAA and SOC2 compliant, your data is safe with us, always.",
+      "Efficiently manage your book collection with our comprehensive library management system, including book tracking and inventory control.",
   },
   {
     id: 2,
-    title: "Automated Social Media Posting",
+    title: "Event Organization",
     description:
-      "Schedule and automate your social media posts across multiple platforms to save time and maintain a consistent online presence.",
+      "Create and manage book-related events, workshops, and reading sessions with our easy-to-use event management tools.",
   },
   {
     id: 3,
-
-    title: "Advanced Analytics",
+    title: "User Engagement",
     description:
-      "Gain insights into your social media performance with detailed analytics and reporting tools to measure engagement and ROI.",
+      "Track user interactions, book preferences, and reading habits to provide personalized recommendations and improve user experience.",
   },
   {
     id: 4,
-
-    title: "Content Calendar",
+    title: "Book Rental System",
     description:
-      "Plan and organize your social media content with an intuitive calendar view, ensuring you never miss a post.",
+      "Streamline the book rental process with automated tracking, due date management, and return notifications.",
   },
   {
     id: 5,
-
-    title: "Audience Targeting",
+    title: "Community Building",
     description:
-      "Reach the right audience with advanced targeting options, including demographics, interests, and behaviors.",
+      "Foster a vibrant reading community with features for book discussions, reviews, and reader interactions.",
   },
   {
     id: 6,
-
-    title: "Social Listening",
+    title: "Admin Dashboard",
     description:
-      "Monitor social media conversations and trends to stay informed about what your audience is saying and respond in real-time.",
+      "Comprehensive admin controls for managing books, users, events, and monitoring system performance.",
   },
   {
     id: 7,
-
-    title: "Customizable Templates",
+    title: "Book Categories",
     description:
-      "Create stunning social media posts with our customizable templates, designed to fit your brand's unique style and voice.",
+      "Organize books into categories for easy navigation and discovery, with customizable classification options.",
   },
   {
     id: 8,
-
-    title: "Collaboration Tools",
+    title: "Multi-platform Access",
     description:
-      "Work seamlessly with your team using our collaboration tools, allowing you to assign tasks, share drafts, and provide feedback in real-time.",
+      "Access your library management system from any device, ensuring seamless operation whether you're at the desk or on the go.",
   },
 ];

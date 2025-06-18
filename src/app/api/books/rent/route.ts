@@ -36,17 +36,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user has already rented this book
+    // Check if user has any pending or active rental for this book
     const existingRental = await RentedBook.findOne({
       bookId,
       renterId: userId,
-      status: "active",
+      status: { $in: ["active", "pending"] },
     });
 
     if (existingRental) {
-      console.log("User already rented this book:", { bookId, userId });
+      console.log("User already has a pending/active rental for this book:", {
+        bookId,
+        userId,
+      });
       return NextResponse.json(
-        { error: "You have already rented this book" },
+        { error: "You already have a pending or active rental for this book" },
         { status: 400 }
       );
     }
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 14);
 
-    // Create rental record
+    // Create rental request with pending status
     const newRental = new RentedBook({
       bookId,
       renterId: userId,
@@ -63,32 +66,34 @@ export async function POST(req: NextRequest) {
       renterEmail: userEmail,
       bookTitle: book.title,
       dueDate,
-      status: "active",
+      status: "pending",
+      approvedBy: null,
+      approvedAt: null,
     });
 
-    // Update book stock
-    book.stock -= 1;
-    await book.save();
     await newRental.save();
 
-    console.log("Book rented successfully:", {
+    console.log("Rental request created successfully:", {
       bookId,
       userId,
       rentalId: newRental._id,
     });
 
     return NextResponse.json({
-      message: "Book rented successfully",
+      message:
+        "Rental request submitted successfully. Waiting for admin approval.",
       rental: {
         id: newRental._id,
         bookTitle: book.title,
-        dueDate: newRental.dueDate,
         status: newRental.status,
+        requestedAt: newRental.createdAt,
       },
-      remainingStock: book.stock,
     });
-  } catch (error: any) {
-    console.error("Error renting book:", error);
-    return NextResponse.json({ error: "Failed to rent book" }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Error creating rental request:", error);
+    return NextResponse.json(
+      { error: "Failed to create rental request" },
+      { status: 500 }
+    );
   }
 }

@@ -20,6 +20,8 @@ import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { books } from "../../components/ui/Temp";
+import { Upload } from "lucide-react";
+import FileUpload from "../../components/layouts/FileUpload";
 
 interface Book {
   _id: string;
@@ -37,10 +39,17 @@ interface BooksProps {
   bookArray: Book[];
 }
 
+interface ImageUploadResponse {
+  url: string;
+  fileId: string;
+  name: string;
+}
+
 export default function Allbooks({ bookArray }: BooksProps) {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [editedBook, setEditedBook] = useState<Partial<Book>>({});
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const categories = [...new Set(books.map((book) => book.category))];
 
   const handleEdit = (book: Book) => {
@@ -50,7 +59,14 @@ export default function Allbooks({ bookArray }: BooksProps) {
       stock: book.stock,
       imageUrl: book.imageUrl || "",
     });
+    setImagePreview(book.imageUrl || null);
     setIsOpen(true);
+  };
+
+  const HandleBannerImage = (imageData: ImageUploadResponse) => {
+    const imageUrl = imageData.url;
+    setImagePreview(imageUrl);
+    setEditedBook({ ...editedBook, imageUrl: imageUrl });
   };
 
   const handleSave = async () => {
@@ -250,14 +266,49 @@ export default function Allbooks({ bookArray }: BooksProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                value={editedBook.imageUrl}
-                onChange={(e) =>
-                  setEditedBook({ ...editedBook, imageUrl: e.target.value })
-                }
-              />
+              <Label htmlFor="imageUrl">Book Cover Image</Label>
+              <div className="flex flex-col items-center justify-center w-full">
+                <label
+                  htmlFor="image-upload"
+                  className="relative flex flex-col items-center justify-center w-full h-46 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
+                >
+                  {imagePreview ? (
+                    <div className="relative w-full h-full group">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+                        <p className="text-white text-sm font-medium">
+                          Click to change image
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-12 h-12 mb-4 text-gray-400 dark:text-gray-500" />
+                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        PNG, JPG or WEBP (MAX. 2MB)
+                      </p>
+                    </div>
+                  )}
+                  <FileUpload
+                    folderPath={"SocialShelf/Books/CoverImage"}
+                    onSuccess={HandleBannerImage}
+                    FileName={"Book_Cover"}
+                  />
+                </label>
+                {!imagePreview && (
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Please upload an image for your book cover
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsOpen(false)}>

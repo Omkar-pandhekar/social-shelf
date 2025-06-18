@@ -18,8 +18,8 @@ export async function GET() {
     // Find all rented books for the user by email
     const rentedBooks = await RentedBook.find({
       renterEmail: session.user.email,
-      status: { $in: ["active", "overdue"] }, // Only get active and overdue books
-    }).sort({ dueDate: 1 }); // Sort by due date
+      status: { $in: ["pending", "active", "overdue", "returned", "rejected"] }, // Include all statuses
+    }).sort({ createdAt: -1 }); // Sort by creation date, newest first
 
     // Calculate days remaining for each book
     const booksWithDetails = rentedBooks.map((book) => {
@@ -29,10 +29,37 @@ export async function GET() {
         (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
 
+      // Determine if the book is overdue (only for active books)
+      const isOverdue = book.status === "active" && daysRemaining < 0;
+
+      // If book is overdue, update its status
+      if (isOverdue) {
+        book.status = "overdue";
+      }
+
       return {
         ...book.toObject(),
-        daysRemaining,
-        isOverdue: daysRemaining < 0,
+        daysRemaining: book.status === "active" ? daysRemaining : undefined,
+        isOverdue,
+        // Include approval details
+        approvalDetails:
+          book.status === "pending"
+            ? {
+                message: "Waiting for admin approval",
+                requestedAt: book.createdAt,
+              }
+            : book.status === "rejected"
+            ? {
+                message: "Request was rejected",
+                rejectedAt: book.updatedAt,
+              }
+            : book.status === "active"
+            ? {
+                message: "Request approved",
+                approvedAt: book.approvedAt,
+                approvedBy: book.approvedBy,
+              }
+            : undefined,
       };
     });
 
