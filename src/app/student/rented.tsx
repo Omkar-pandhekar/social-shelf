@@ -7,6 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import classNames from "classnames";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface Rented {
   bookId: string;
@@ -17,7 +20,7 @@ interface Rented {
   rentDate: Date;
   dueDate: Date;
   returnDate?: Date;
-  status: "active" | "returned" | "overdue";
+  status: "pending" | "active" | "returned" | "overdue" | "rejected";
   fine?: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,7 +31,95 @@ interface RentedProps {
   rentedArray: Rented[];
 }
 
-export default function rented({ rentedArray }: RentedProps) {
+export default function Rented({ rentedArray }: RentedProps) {
+  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "returned":
+        return "bg-blue-100 text-blue-800";
+      case "overdue":
+        return "bg-red-100 text-red-800";
+      case "rejected":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Waiting for admin approval";
+      case "rejected":
+        return "Request was rejected";
+      default:
+        return "";
+    }
+  };
+
+  const handleReturn = async (bookId: string) => {
+    try {
+      setLoading((prev) => ({ ...prev, [bookId]: true }));
+      const response = await fetch("/api/books/return", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bookId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to return book");
+      }
+
+      toast.success("Book returned successfully");
+      // Refresh the page to update the list
+      window.location.reload();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to return book"
+      );
+    } finally {
+      setLoading((prev) => ({ ...prev, [bookId]: false }));
+    }
+  };
+
+  const handleRenew = async (bookId: string) => {
+    try {
+      setLoading((prev) => ({ ...prev, [bookId]: true }));
+      const response = await fetch("/api/books/renew", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bookId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to renew book");
+      }
+
+      toast.success("Book renewed successfully");
+      // Refresh the page to update the list
+      window.location.reload();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to renew book"
+      );
+    } finally {
+      setLoading((prev) => ({ ...prev, [bookId]: false }));
+    }
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
@@ -40,6 +131,7 @@ export default function rented({ rentedArray }: RentedProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Rented Date</TableHead>
                 <TableHead>Due Date</TableHead>
                 <TableHead>Days Left</TableHead>
@@ -54,9 +146,34 @@ export default function rented({ rentedArray }: RentedProps) {
                   (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
                 );
 
+                const isActionDisabled =
+                  book.status === "pending" ||
+                  book.status === "rejected" ||
+                  book.status === "returned";
+                const isLoading = loading[book.bookId];
+
                 return (
                   <TableRow key={book.bookId}>
                     <TableCell>{book.bookTitle}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={classNames(
+                            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                            getStatusColor(book.status)
+                          )}
+                        >
+                          {book.status.charAt(0).toUpperCase() +
+                            book.status.slice(1)}
+                        </span>
+                        {(book.status === "pending" ||
+                          book.status === "rejected") && (
+                          <span className="text-xs text-gray-500">
+                            {getStatusMessage(book.status)}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {new Date(book.rentDate).toLocaleDateString()}
                     </TableCell>
@@ -64,22 +181,36 @@ export default function rented({ rentedArray }: RentedProps) {
                       {new Date(book.dueDate).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          daysRemaining <= 3
-                            ? "bg-red-100 text-red-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {daysRemaining} days
-                      </span>
+                      {book.status === "active" && (
+                        <span
+                          className={classNames(
+                            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                            daysRemaining <= 3
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          )}
+                        >
+                          {daysRemaining} days
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm" className="mr-2">
-                        Renew
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mr-2"
+                        disabled={isActionDisabled || isLoading}
+                        onClick={() => handleRenew(book.bookId)}
+                      >
+                        {isLoading ? "Renewing..." : "Renew"}
                       </Button>
-                      <Button variant="destructive" size="sm">
-                        Return
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={isActionDisabled || isLoading}
+                        onClick={() => handleReturn(book.bookId)}
+                      >
+                        {isLoading ? "Returning..." : "Return"}
                       </Button>
                     </TableCell>
                   </TableRow>

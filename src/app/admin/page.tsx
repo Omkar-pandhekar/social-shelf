@@ -14,6 +14,7 @@ import {
   Upload,
   Contact,
   Calendar1,
+  ClipboardList,
 } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -30,6 +31,7 @@ import Events from "./events";
 import FileUpload from "@/components/layouts/FileUpload";
 import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
 import Swal from "sweetalert2";
+import RegisteredEvents from "./registeredEvents";
 
 interface Book {
   bookId: string;
@@ -214,7 +216,11 @@ export default function Admin() {
     { id: "add", label: "Add Book", icon: <PlusCircle className="w-5 h-5" /> },
     { id: "donations", label: "Donations", icon: <Gift className="w-5 h-5" /> },
     { id: "events", label: "Events", icon: <Calendar1 className="w-5 h-5" /> },
-
+    {
+      id: "registered-events",
+      label: "Registered Events",
+      icon: <ClipboardList className="w-5 h-5" />,
+    },
     { id: "users", label: "Users", icon: <Users className="w-5 h-5" /> },
     {
       id: "feedbacks",
@@ -222,11 +228,6 @@ export default function Admin() {
       icon: <Contact className="w-5 h-5" />,
     },
 
-    {
-      id: "analytics",
-      label: "Analytics",
-      icon: <BarChart className="w-5 h-5" />,
-    },
     {
       id: "settings",
       label: "Settings",
@@ -435,8 +436,10 @@ export default function Admin() {
           )}
 
           {/* Events Tab */}
-
           {activeTab === "events" && <Events />}
+
+          {/* Registered Events Tab */}
+          {activeTab === "registered-events" && <RegisteredEvents />}
 
           {/* Users Tab */}
           {activeTab === "users" && <UsersInfo usersArray={userArray} />}
@@ -446,18 +449,6 @@ export default function Admin() {
           )}
 
           {/* Analytics Tab */}
-          {activeTab === "analytics" && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
-                Analytics Dashboard
-              </h1>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Analytics features coming soon...
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Settings Tab */}
           {activeTab === "settings" && (

@@ -12,9 +12,19 @@ export async function PUT(request: Request) {
     // Validate required fields
     if (!bookId || !category) {
       return NextResponse.json(
-        { error: "Book ID, category and condition are required" },
+        { error: "Book ID and category are required" },
         { status: 400 }
       );
+    }
+
+    // Handle imageUrl - extract URL if it's an object
+    let finalImageUrl = imageUrl;
+    if (
+      typeof imageUrl === "object" &&
+      imageUrl !== null &&
+      "url" in imageUrl
+    ) {
+      finalImageUrl = imageUrl.url;
     }
 
     // Update book details
@@ -23,7 +33,7 @@ export async function PUT(request: Request) {
       {
         category,
         stock,
-        imageUrl,
+        imageUrl: finalImageUrl,
         needsReview: false, // Mark as reviewed by admin
         updatedAt: new Date(),
       },

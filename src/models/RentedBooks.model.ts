@@ -10,8 +10,10 @@ export interface IRentedBook {
   rentDate: Date;
   dueDate: Date;
   returnDate?: Date;
-  status: "active" | "returned" | "overdue";
+  status: "pending" | "active" | "returned" | "overdue" | "rejected";
   fine?: number;
+  approvedBy?: string;
+  approvedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -52,12 +54,18 @@ const rentedBookSchema = new Schema<IRentedBook>(
     },
     status: {
       type: String,
-      enum: ["active", "returned", "overdue"],
-      default: "active",
+      enum: ["pending", "active", "returned", "overdue", "rejected"],
+      default: "pending",
     },
     fine: {
       type: Number,
       default: 0,
+    },
+    approvedBy: {
+      type: String,
+    },
+    approvedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
@@ -67,6 +75,7 @@ const rentedBookSchema = new Schema<IRentedBook>(
 rentedBookSchema.index({ bookId: 1, renterId: 1 });
 rentedBookSchema.index({ status: 1 });
 rentedBookSchema.index({ dueDate: 1 });
+rentedBookSchema.index({ approvedBy: 1 });
 
 const RentedBook =
   models?.rentedBooks || model<IRentedBook>("rentedBooks", rentedBookSchema);
