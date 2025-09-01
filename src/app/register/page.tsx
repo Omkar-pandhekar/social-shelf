@@ -240,7 +240,6 @@ const RegisterPage = () => {
                   <SelectLabel>User</SelectLabel>
                   <SelectItem value="student">Student</SelectItem>
                   <SelectItem value="volunteer">Volunteer</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

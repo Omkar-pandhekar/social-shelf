@@ -1,4 +1,5 @@
-import type { DefaultSession, NextAuthConfig } from "next-auth";
+import type {NextAuthOptions} from "next-auth";
+import NextAuth,{DefaultSession} from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
@@ -17,20 +18,17 @@ interface ExtendedUser {
   email?:string;
 }
 
-<<<<<<< HEAD
-export const authOptions: NextAuthOptions = {
-  
-=======
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      role?: string;
-    } & DefaultSession["user"];
-  }
-}
 
-export const authOptions: NextAuthConfig = {
+// declare module "next-auth" {
+//   interface Session extends DefaultSession {
+//     user: {
+//       id: string;
+//       role?: string;
+//     } & DefaultSession["user"];
+//   }
+// }
+
+export const authOptions: NextAuthOptions = {
   // adapter: MongoDBAdapter(clientPromise),
 
   providers: [
@@ -47,7 +45,7 @@ export const authOptions: NextAuthConfig = {
 
         try {
           await ConnectDB();
-          const user = await UserModel.findOne({ email: credentials.email });
+          const user = await User.findOne({ email: credentials.email });
 
           if (!user) {
             throw new Error("No user found with this email");
@@ -89,15 +87,16 @@ export const authOptions: NextAuthConfig = {
       if (user) {
         token.id = user.id;
         token.name = user.name;
-        token.role = user.role;
+        token.role = user?.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
+        console.log(session);
         session.user.id = token.id as string;
         session.user.name = token.name as string;
-        session.user.role = token.role as string;
+        session.user.role = token?.role as string;
       }
       return session;
     },
@@ -106,7 +105,7 @@ export const authOptions: NextAuthConfig = {
      async createUser(userObj) {
       const user = userObj?.user;
       console.log("User is ",userObj)
-     const {id,name,email} = user as ExtendedUser
+     const {id,name,email} = user as ExtendedUser;
       const client = await clientPromise;
       const db = client.db("Social");
 
